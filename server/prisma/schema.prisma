@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime  @default(now())
+  hazards      Hazard[]
+}
+
+model Hazard {
+  id           Int       @id @default(autoincrement())
+  title        String
+  type         String
+  description  String
+  city         String
+  area         String?
+  latitude     Float?
+  longitude    Float?
+  imageUrl     String?
+  upvotes      Int       @default(0)
+  severity     String    @default("Unknown")
+  status       String    @default("Reported")
+  reporterName String?
+  isRecurring  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  userId       Int?
+  user         User?     @relation(fields: [userId], references: [id])
+  comments     Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  hazardId  Int
+  hazard    Hazard   @relation(fields: [hazardId], references: [id], onDelete: Cascade)
+  text      String
+  author    String   @default("Anonymous")
+  createdAt DateTime @default(now())
+}
